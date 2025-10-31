@@ -18,12 +18,18 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await userRepo.findByEmail(email);
-    if (!user) return{error:"invalid_credentials"};
+    if (!user) return{error:"user_not_found"};
 
     const match = await comparePassword(password, user.password);
     if (!match) return{error:"invalid_credentials"};
 
+    // Log successful login (only log if user id is present)
+    if (user.id != null) {
+      await userRepo.logLogin(user.id);
+    }
+
     const token = generateToken(user);
     return { user, token };
   }
+
 }

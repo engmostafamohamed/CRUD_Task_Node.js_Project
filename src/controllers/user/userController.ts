@@ -98,4 +98,30 @@ export class UserController {
       return ApiResponse.error(res, req.t(`${err.message}`) || req.t("delete_failed"), null, 400);
     }
   }
+  async getTop3Users(req: Request, res: Response) {
+    try {
+      console.log('test');
+      const users = await service.getTopUsers();
+      if (!users) {
+        return ApiResponse.error(res, req.t("retrieve_failed"), null, 400);
+      }
+      return ApiResponse.success(res, req.t("retrieved_successfully"), users);
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+      return ApiResponse.error(res, req.t("retrieve_failed"), null, 400);
+    }
+  }
+
+  async getInactiveUsers(req: Request, res: Response) {
+    try {
+      const hours = Number(req.query.hours) || 1;
+      const users = await service.getInactiveUsers(hours);
+      if (!users) {
+        return ApiResponse.error(res, req.t("retrieve_failed"), null, 400);
+      }
+      return ApiResponse.success(res, req.t("retrieved_successfully"), users);
+    } catch (err: any) {
+      return ApiResponse.error(res, req.t("retrieve_failed"), null, 400);
+    }
+  }
 }

@@ -2,7 +2,7 @@ import connectDB from "../config/database";
 
 const migrate = async () => {
   try {
-    const sql = `
+    const usersTable  = `
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
@@ -17,8 +17,21 @@ const migrate = async () => {
       );
     `;
 
-    await connectDB.query(sql);
-    console.log("Migration completed successfully");
+    await connectDB.query(usersTable );
+    console.log("Users table created successfully.");
+    // Create Login Logs Table
+    const loginLogsTable = `
+      CREATE TABLE IF NOT EXISTS login_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        login_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      );
+    `;
+
+    await connectDB.query(loginLogsTable);
+    console.log("Login logs table created successfully.");
+    console.log("Migration completed successfully!");
     process.exit(0);
   } catch (err) {
     console.error("Migration failed:", err);

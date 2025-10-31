@@ -20,6 +20,13 @@ export class UserService {
       total_verified_users: stats.total_verified,
     };
   }
+  async getTopUsers() {
+    return await repo.getTopUsersByLoginFrequency();
+  }
+
+  async getInactiveUsers(hours = 1) {
+    return await repo.getInactiveUsers(hours);
+  }
 
   async getById(id: number) {
     const user = await repo.findById(id);

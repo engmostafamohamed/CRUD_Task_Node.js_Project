@@ -16,4 +16,9 @@ router.get("/:id", authenticate,  userIdValidator,validateRequest,controller.sho
 // router.post("/", authenticate,createUserValidator,validateRequest, controller.create);
 router.put("/:id", authenticate,userIdValidator,updateUserValidator,validateRequest, controller.update);
 
+// Top 3 users by login frequency
+router.get("/log/top3", controller.getTop3Users);
+
+// Inactive users (default 1 hour)
+router.get("/log/inactive", controller.getInactiveUsers);
 export default router;

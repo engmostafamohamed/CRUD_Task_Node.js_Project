@@ -82,7 +82,44 @@ export class UserRepository {
       total_verified: rows[0]?.total_verified || 0,
     };
   }
+    async logLogin(userId: number): Promise<void> {
+    await connectDB.query(
+      `INSERT INTO login_logs (user_id) VALUES ( ?)`,
+      [userId]
+    );
+  }
+  
+  async getTopUsersByLoginFrequency() {
+    const [rows]: any = await connectDB.query(`
+      SELECT u.id, u.name, u.email, COUNT(l.id) AS login_count
+      FROM users u
+      JOIN login_logs l ON u.id = l.user_id
+      WHERE u.deleted_at IS NULL
+      GROUP BY u.id
+      ORDER BY login_count DESC
+      LIMIT 3
+    `);
+    return rows;
+  }
 
+  async getInactiveUsers(hours: number = 1, months: number = 0) {
+    let timeCondition = "";
+    if (months > 0) {
+      timeCondition = `l.login_time < NOW() - INTERVAL ${months} MONTH`;
+    } else {
+      timeCondition = `l.login_time < NOW() - INTERVAL ${hours} HOUR`;
+    }
+
+    const [rows]: any = await connectDB.query(`
+      SELECT DISTINCT u.id, u.name, u.email
+      FROM users u
+      LEFT JOIN login_logs l ON u.id = l.user_id
+      WHERE (${timeCondition} OR l.id IS NULL)
+      AND u.deleted_at IS NULL
+    `);
+
+    return rows;
+  }
   async findById(id: number): Promise<User | null> {
     const [rows] = await connectDB.query(
       "SELECT * FROM users WHERE id = ? AND deleted_at IS NULL LIMIT 1",

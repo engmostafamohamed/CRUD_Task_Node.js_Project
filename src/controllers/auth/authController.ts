@@ -13,12 +13,12 @@ export class AuthController {
       const data: RegisterDTO = req.body;
       
       const result = await service.register(data);
-      if (result.error) {
-        return ApiResponse.error(res, req.t(result.error), 400);
+      if (result.error === "email_already_exists") {
+        return ApiResponse.error(res, req.t("email_already_exists"), 400);
       }
       
       if (!result.user) {
-        return ApiResponse.error(res, req.t("auth.user_not_found"), 400);
+        return ApiResponse.error(res, req.t("user_not_found"), 400);
       }
       return ApiResponse.success(
         res,
@@ -34,6 +34,16 @@ export class AuthController {
     try {
       const data: LoginDTO = req.body;
       const result = await service.login(data.email, data.password);
+
+      // if (result.error === "invalid_credentials") {
+      //   return ApiResponse.error(res, req.t("invalid_credentials"), 400);
+      // }
+      // if (result.error === "user_not_found") {
+      //   return ApiResponse.error(res, req.t("user_not_found"), 400);
+      // }
+      if (result.error) {
+        return ApiResponse.error(res, req.t(result.error), 400);
+      }
 
       if (!result.user) {
         return ApiResponse.error(res, req.t("user_not_found"), 400);
