@@ -75,4 +75,19 @@ export class UserService {
     await repo.softDelete(id);
     return { success: true };
   }
+
+  async changeUserActivation(id: number) {
+    const user = await repo.findById(id);
+    if (!user) return { error: "user_not_found" };
+
+    if (user.is_active) {
+      // If user is active → deactivate them
+      await repo.deactivate(id);
+      return { message: "user_deactivated_successfully" };
+    } else {
+      // If user is inactive → activate them
+      await repo.activate(id);
+      return { message: "user_activated_successfully" };
+    }
+  }
 }

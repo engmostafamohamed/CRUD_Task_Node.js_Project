@@ -102,22 +102,14 @@ export class UserRepository {
     return rows;
   }
 
-  async getInactiveUsers(hours: number = 1, months: number = 0) {
-    let timeCondition = "";
-    if (months > 0) {
-      timeCondition = `l.login_time < NOW() - INTERVAL ${months} MONTH`;
-    } else {
-      timeCondition = `l.login_time < NOW() - INTERVAL ${hours} HOUR`;
-    }
-
-    const [rows]: any = await connectDB.query(`
-      SELECT DISTINCT u.id, u.name, u.email
+  async getInactiveUsers(hours = 1) {
+    const sql = `
+      SELECT u.id, u.name, u.email
       FROM users u
       LEFT JOIN login_logs l ON u.id = l.user_id
-      WHERE (${timeCondition} OR l.id IS NULL)
-      AND u.deleted_at IS NULL
-    `);
-
+      WHERE l.login_time IS NULL OR l.login_time < (NOW() - INTERVAL ? HOUR);
+    `;
+    const [rows]: any = await connectDB.query(sql, [hours]);
     return rows;
   }
   async findById(id: number): Promise<User | null> {

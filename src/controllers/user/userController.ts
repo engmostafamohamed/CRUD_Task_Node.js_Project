@@ -124,4 +124,26 @@ export class UserController {
       return ApiResponse.error(res, req.t("retrieve_failed"), null, 400);
     }
   }
+  async changeActivation(req: Request, res: Response) {
+    const id = Number(req.params.id);
+
+    const result = await service.changeUserActivation(id);
+
+    if ("error" in result) {
+      const message =
+        typeof (result as any).error === "string"
+          ? req.t((result as any).error)
+          : req.t("auth.not_found");
+      return ApiResponse.error(res, message, 200);
+    }
+
+    const message =
+      req.t(
+        result.message === "user_activated_successfully"
+          ? "user_activated_successfully"
+          : "user_deactivated_successfully"
+      ) || req.t("updated_successfully");
+
+    return ApiResponse.success(res, message);
+  }
 }

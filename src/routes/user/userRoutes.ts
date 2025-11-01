@@ -21,4 +21,6 @@ router.get("/log/top3", controller.getTop3Users);
 
 // Inactive users (default 1 hour)
 router.get("/log/inactive", controller.getInactiveUsers);
+
+router.patch("/:id/activation", controller.changeActivation);
 export default router;
